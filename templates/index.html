@@ -1,70 +1,62 @@
-{% extends 'layout.html' %}
 {% load static %}
-{% block navhead %}<i>{% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}</i>{% endblock %}
-{% block body %}
-    <main class="flex-grow flex flex-col justify-center items-center">
-        <!-- Space for animation -->
-        <div id="animation-container" class="relative w-full h-96 mb-8 overflow-hidden">
-            <img src="{% static 'imgs/river_bg.jpg' %}" alt="River Background" class="absolute inset-0 w-full h-full object-cover">
-            <div id="boat" class="absolute w-12 h-12 bg-blue-500 rounded-full shadow-lg flex items-center justify-center">
-                <div class="w-8 h-8 bg-yellow-400 rounded-full"></div>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mobile-First Website with Rive</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+
+    <script src="https://kit.fontawesome.com/35c881c056.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="relative h-screen w-screen text-white">
+
+<!-- Rive Animation -->
+<canvas id="riveCanvas" class="absolute inset-0 h-full w-full"></canvas>
+
+<!-- Buttons Above Footer Navigation -->
+<div class="fixed bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-4 z-50">
+    <!-- Button 1: Track the Robot -->
+    <button class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-600 flex items-center space-x-2" style="background-color: rgba(59, 130, 246, 0.6);">
+        <i class="fa-solid fa-robot text-3xl"></i>
+        <div class="flex flex-col">
+            <span class="font-semibold text-2xl">Track</span>
+            <span class="text-xs">the robot</span>
         </div>
-
-        <div class="flex space-x-4">
-            <button class="px-6 py-2 bg-blue-500 text-white rounded-full font-semibold shadow-lg"
-                    onclick="location.href=`{% url 'dashboard' %}`">
-                Draw Path <br><span class="text-sm">for waste collection</span>
-            </button>
-            <button class="px-6 py-2 bg-green-500 text-white rounded-full font-semibold shadow-lg"
-                    onclick="location.href=`{% url 'index' %}`">
-                Track <br><span class="text-sm">the robot</span>
-            </button>
+    </button>
+    <!-- Button 2: Draw Location to Waste Collection -->
+    <button class="bg-green-500 text-white px-6 py-3 rounded-lg shadow hover:bg-green-600 flex items-center space-x-2"
+            style="background-color: rgba(34, 197, 94, 0.6);">
+        <i class="fa-solid fa-map-location-dot text-3xl"></i>
+        <div class="flex flex-col text-left">
+            <span class="font-semibold text-2xl">Draw Location</span>
+            <span class="text-xs">to waste collection</span>
         </div>
-    </main>
+    </button>
+</div>
 
-    <script>
-        const boat = document.getElementById('boat');
-        const container = document.getElementById('animation-container');
-        const containerWidth = container.offsetWidth;
-        const containerHeight = container.offsetHeight;
+<!-- Pill-Like Left-Side Navigation Bar -->
+<nav class="fixed top-20 left-4 transform -translate-y-1/2 bg-white shadow-lg rounded-full flex flex-col items-center py-4 space-y-6 w-16">
+    
+    <a href="/profile" class="{% if request.path == '/profile' %}text-blue-400{% else %}text-gray-600{% endif %} flex flex-col items-center hover:text-blue-500">
+        <i class="fa fa-gear text-2xl"></i>
+        <span class="text-xs">Settings</span>
+    </a>
+</nav>
 
-        let posX = containerWidth / 2; // Start at the center of the container
-        let posY = containerHeight / 2;
-
-        function getRandomDirection() {
-            const directions = [
-                { x: 1, y: 0 },   // Right
-                { x: -1, y: 0 },  // Left
-                { x: 0, y: 1 },   // Down
-                { x: 0, y: -1 },  // Up
-                { x: 1, y: 1 },   // Diagonal Down-Right
-                { x: -1, y: -1 }, // Diagonal Up-Left
-                { x: 1, y: -1 },  // Diagonal Up-Right
-                { x: -1, y: 1 }   // Diagonal Down-Left
-            ];
-            return directions[Math.floor(Math.random() * directions.length)];
-        }
-
-        function animateBoat() {
-            const direction = getRandomDirection();
-            const step = 10; // Movement step size
-
-            posX += direction.x * step;
-            posY += direction.y * step;
-
-            // Boundary check
-            if (posX < 0) posX = 0;
-            if (posY < 0) posY = 0;
-            if (posX > containerWidth - 48) posX = containerWidth - 48; // 48px = boat size
-            if (posY > containerHeight - 48) posY = containerHeight - 48;
-
-            boat.style.transform = `translate(${posX}px, ${posY}px)`;
-
-            // Recursive animation with delay
-            setTimeout(animateBoat, 300);
-        }
-
-        animateBoat();
-    </script>
-{% endblock %}
+<!-- Rive Script -->
+<script src="https://unpkg.com/@rive-app/canvas"></script>
+<script>
+    const riveCanvas = new rive.Rive({
+        src: "{% static 'animations/indexpage.riv' %}", // Update with your file path
+        canvas: document.getElementById("riveCanvas"),
+        autoplay: true,
+        stateMachines: "State Machine 1", // Replace with your state machine name
+        onLoad: () => {
+            riveCanvas.resizeDrawingSurfaceToCanvas();
+        },
+    });
+</script>
+</body>
+</html>
