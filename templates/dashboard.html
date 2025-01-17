@@ -1,0 +1,134 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block navhead %}Dashboard{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .employee-list {
+            overflow-y: auto;
+            padding-bottom: 220px; /* Account for the reduced map height and spacing */
+        }
+
+        #map-container {
+            position: absolute;
+            bottom: 80px; /* Space above footer */
+            left: 0;
+            width: 100%;
+            height: 200px; /* Reduced map height */
+            z-index: 10;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        #map {
+            height: 100%;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .employee-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-status {
+            text-align: right;
+            font-size: 0.875rem;
+            color: #6b7280; /* Gray text */
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-online {
+            background-color: #34d399; /* Green for online */
+        }
+
+        .status-offline {
+            background-color: #d1d5db; /* Gray for offline */
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main class="flex-grow flex flex-col">
+        <!-- Heading -->
+        <!-- User List Container -->
+        <div class="employee-list w-full px-6" style="max-height: calc(100vh - 220px);">
+            <div class="grid grid-cols-1 gap-3">
+                {% for employee in employees %}
+                    <!-- User Card -->
+                    <a href="/u/{{ employee.username }}" class="gradient-box rounded-2xl p-6 shadow-lg block">
+                        <div class="employee-card">
+                            <div class="employee-info">
+                                <h3 class="text-lg font-semibold text-gray-700">{{ employee.first_name }}</h3>
+
+                                {% if not employee.is_online %}
+                                    <p class="text-xs text-gray-600 last-seen">Last seen: {{ employee.last_seen }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="employee-status">
+                                <div>
+                                    <span class="status-indicator {% if employee.is_online %}status-online{% else %}status-offline{% endif %}"></span>
+                                    {% if employee.is_online %}
+                                        Online
+                                    {% else %}
+                                        Offline
+                                    {% endif %}
+                                </div>
+
+                            </div>
+                        </div>
+                    </a>
+                {% empty %}
+                    <p class="text-center text-gray-600">No employees found.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize map at VIT AP Campus
+        const vitApLat = 16.4819, vitApLng = 80.5083;
+        const map = L.map('map').setView([vitApLat, vitApLng], 16);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add a marker example (you can customize or pass coordinates dynamically)
+        L.marker([vitApLat, vitApLng]).addTo(map)
+            .bindPopup('Default Location: VIT AP University.')
+            .openPopup();
+    </script>
+{% endblock %}

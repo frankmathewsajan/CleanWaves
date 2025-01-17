@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block body %}
+<main class="flex-grow flex flex-col justify-center items-center">
+    <h2 class="text-center text-3xl font-extrabold mb-4"></h2>
+    <p class="text-center text-gray-600 px-6 mb-8">
+        Ensure the safety of workers with our smart helmet monitoring system. Real-time updates and alerts at your
+        fingertips.
+    </p>
+    <button class=" px-6 py-2 bg-blue-500 text-white rounded-full font-semibold shadow-lg" onclick="location.href=`{% url 'dashboard' %}`">Get Started</button>
+</main>
+{% endblock %}

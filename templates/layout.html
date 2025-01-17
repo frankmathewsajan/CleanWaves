@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Safety Helmet App</title>
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/35c881c056.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {% block styles %}{% endblock %}
+    <style>
+        body {
+            background-color: #f8f2ef;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-box {
+            background: linear-gradient(145deg, #f3f3f3, #ffffff);
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+<!-- Header -->
+<header class="flex justify-between items-center p-4">
+    <h1 class="text-xl font-bold">{% block navhead %}{% endblock %}</h1>
+
+    <div class="relative flex items-center space-x-4">
+        <!-- User Icon -->
+        <span><i>{{ user.profile.role }}</i></span> &nbsp;&nbsp;
+        <i class="fa fa-sign-out text-2xl cursor-pointer" onclick="location.href='/logout'"></i>
+    </div>
+</header>
+
+{% block body %}{% endblock %}
+<!-- Footer Navbar -->
+
+<footer class="p-4">
+    <nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-full flex items-center justify-around w-3/4 h-12">
+        <a href="/dashboard" class="{% if request.path == '/dashboard' %}text-blue-400{% else %}text-gray-600{% endif %} flex flex-col items-center hover:text-blue-500">
+            <i class="fa fa-tachometer text-xl"></i>
+            <span class="text-xs">Dashboard</span>
+        </a>
+        <a href="/alerts" class="{% if request.path == '/alerts' %}text-blue-400{% else %}text-gray-600{% endif %}  flex flex-col items-center hover:text-blue-500">
+            <i class="fa fa-bell text-xl"></i>
+            <span class="text-xs">Alerts</span>
+        </a>
+        <a href="/reports" class="{% if request.path == '/reports' %}text-blue-400{% else %}text-gray-600{% endif %}  flex flex-col items-center hover:text-blue-500">
+            <i class="fa fa-file-text text-xl"></i>
+            <span class="text-xs">Reports</span>
+        </a>
+        <a href="/profile" class="{% if request.path == '/profile' %}text-blue-400{% else %}text-gray-600{% endif %}  flex flex-col items-center hover:text-blue-500">
+            <i class="fa fa-user text-xl"></i>
+            <span class="text-xs">Profile</span>
+        </a>
+    </nav>
+</footer>
+
+</body>
+</html>

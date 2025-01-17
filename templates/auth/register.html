@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication</title>
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/35c881c056.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f2ef;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+<!-- Header -->
+<header class="flex justify-between items-center p-4">
+    <h1 class="text-xl font-bold">Registration</h1>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col justify-center items-center">
+    <form class="flex flex-col items-center bg-white shadow-md rounded-lg px-8 py-6 w-80" method="post">
+        {% csrf_token %}
+        {% if message %}
+            <p class="text-red-500 text-sm mb-4">{{ message }}</p>
+        {% endif %}
+        <label for="username" class="block text-gray-700 font-semibold mb-2"
+               style="align-self: flex-start">Username</label>
+        <input
+                type="text"
+                id="username"
+                name="username"
+                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                placeholder="Choose a username"
+                required
+        />
+        <label for="name" class="block text-gray-700 font-semibold mb-2"
+               style="align-self: flex-start">First Name</label>
+        <input
+                type="text"
+                id="name"
+                name="name"
+                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                placeholder="First Name"
+                required
+        />
+        <label for="email" class="block text-gray-700 font-semibold mb-2" style="align-self: flex-start">Email</label>
+        <input
+                type="email"
+                id="email"
+                name="email"
+                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                placeholder="Enter your email"
+                required
+        />
+        <label for="password" class="block text-gray-700 font-semibold mb-2"
+               style="align-self: flex-start">Password</label>
+        <input
+                type="password"
+                id="password"
+                name="password"
+                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                placeholder="Enter your password"
+                required
+        />
+        <label for="confirm-password" class="block text-gray-700 font-semibold mb-2" style="align-self: flex-start">
+            Confirm Password
+        </label>
+        <input
+                type="password"
+                id="confirm-password"
+                name="confirm_password"
+                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                placeholder="Confirm your password"
+                required
+        />
+        <label for="role" class="block text-gray-700 font-semibold mb-2" style="align-self: flex-start">Select
+            Role</label>
+        <select
+                id="role"
+                name="role"
+                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
+                required
+        >
+            <option value="" disabled selected>Select your role</option>
+            <option value="manager">Manager</option>
+            <option value="employee">Employee</option>
+        </select>
+        <button
+                type="submit"
+                class="w-full px-6 py-2 bg-blue-500 text-white rounded-full font-semibold shadow-lg hover:bg-blue-600 transition-colors"
+        >
+            Register
+        </button>
+        <p class="text-sm text-gray-600 mt-4">
+            Already have an account? <a href="{% url 'login' %}" class="text-blue-500 hover:underline">Login</a>
+        </p>
+    </form>
+</main>
+
+
+</body>
+</html>
