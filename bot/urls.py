@@ -12,6 +12,8 @@ urlpatterns = [
 
     path('u/<str:username>', views.metrics, name='metrics'),
 
+    path('map', views.map, name='map')
+
 ]
 
 

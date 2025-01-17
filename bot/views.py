@@ -97,3 +97,7 @@ def metrics(request, username):
         'online_status': True,  # Example: User is online
     }
     return render(request, 'metrics.html', context)
+
+
+def map(request):
+    return render(request, 'map.html')
