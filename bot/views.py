@@ -101,3 +101,7 @@ def metrics(request, username):
 
 def map(request):
     return render(request, 'map.html')
+
+
+def track(request):
+    return render(request, 'track.html')

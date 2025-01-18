@@ -9,6 +9,7 @@ urlpatterns = [
 
     path('dashboard', views.dashboard, name='dashboard'),
     path('reports', views.reports, name='reports'),
+    path('track', views.track, name='track'),
 
     path('u/<str:username>', views.metrics, name='metrics'),
 
