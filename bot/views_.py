@@ -187,16 +187,45 @@ def esp_data(request):
     return render(request, 'view.html')
 
 
+import serial
+import json
+from django.http import JsonResponse
+
+# Global serial connection
+SERIAL_PORT = "COM5"
+BAUD_RATE = 115200
+
+try:
+    ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+    print(f"Serial connection established on {SERIAL_PORT}")
+except serial.SerialException as e:
+    ser = None
+    print(f"Failed to connect to serial port: {e}")
+
+
 def get_esp_data(request):
-    # Fake data
-    data = {
-        'temperature': f"{random.randint(20, 30)}°C",  # Random temperature
-        'latitude': f"{random.uniform(16.4700, 16.4800):.4f}° N",  # Latitude near VIT-AP
-        'longitude': f"{random.uniform(80.5000, 80.5200):.4f}° E",  # Longitude near VIT-AP
-        'distance': f"{random.randint(1, 100)} km",  # Random distance
-        'tds': f"{random.randint(200, 800)} ppm",  # Random TDS in parts per million
-    }
+    """Django view to fetch ESP data."""
+    if ser is None or not ser.is_open:
+        return JsonResponse({'error': 'Serial port is not available'}, status=500)
 
-    print(data)
-
-    return JsonResponse(data)
+    try:
+        line = ser.readline().decode('utf-8').strip()
+        if line:
+            data = json.loads(line)
+            # Validate the data structure
+            expected_keys = ['temp', 'lat', 'lon', 'alt', 'heading']
+            if all(key in data for key in expected_keys):
+                response_data = {
+                    'temperature': f"{data['temp']}°C",
+                    'latitude': f"{data['lat']:.4f}° N",
+                    'longitude': f"{data['lon']:.4f}° W",
+                    'altitude': f"{data['alt']} m",
+                    'heading': f"{data['heading']}°",
+                }
+                return JsonResponse(response_data)
+            else:
+                return JsonResponse({'error': 'Invalid data structure'}, status=400)
+        else:
+            return JsonResponse({'error': 'No data received'}, status=400)
+    except json.JSONDecodeError as e:
+        return JsonResponse({'error': f'JSON decode error: {e}'}, status=400)

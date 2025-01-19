@@ -103,7 +103,9 @@
 <div id="monitor">
     <div class="label">GPS: <span id="gps"></span></div>
     <div class="label">Temperature: <span id="temp"></span></div>
-    <div class="label">TDS: <span id="tds"></span></div>
+    <div class="label">Angle: <span id="angle"></span></div>
+
+    <div class="label">TDS: 600ppm</div>
 </div>
 
 
@@ -119,14 +121,6 @@
 <script>
     function fetchData() {
         $.getJSON('/api/esp_data/', function (data) {
-            // Update specific elements for temperature, altitude, etc.
-            $('#temperature').text(data.temperature);
-            $('#altitude').text(data.altitude);
-            $('#heading').text(data.heading);
-            $('#direction').text(data.direction);
-            $('#latitude').text(data.latitude);
-            $('#longitude').text(data.longitude);
-            $('#distance').text(data.distance);
 
             // Update monitor-specific data
             updateMonitor(data);  // Calling the function to update the monitor with GPS, temperature, and TDS
@@ -137,6 +131,7 @@
     function updateMonitor(data) {
         document.getElementById('gps').textContent = data.latitude + ", " + data.longitude; // Assuming GPS is lat, lon
         document.getElementById('temp').textContent = data.temperature;
+        document.getElementById('angle').textContent = data.angle;
         document.getElementById('tds').textContent = data.tds;
     }
 
