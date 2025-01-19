@@ -117,7 +117,8 @@ def map(request):
 def track(request):
     region = Region.objects.last()
     return render(request, 'track.html', {
-        'region': region
+        'region': region,
+        'key': os.getenv('GOOGLE_MAPS_API_KEY')
     })
 
 
