@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from dotenv import load_dotenv
 
-from .models import Region
+from .models import Region, Garbage
 
 load_dotenv()
 
@@ -158,3 +158,45 @@ def get_region_points(request):
     }
 
     return JsonResponse(region_data)
+
+
+def garbage_location(request):
+    # Assuming you want to fetch the first garbage location in the database.
+    # You can adjust this to filter based on certain criteria if needed.
+    try:
+        garbage = Garbage.objects.first()  # Get the first garbage object, you can adjust this based on your logic
+        if garbage:
+            # Prepare data to be returned in JSON format
+            response_data = {
+                'lat': garbage.latitude,
+                'lng': garbage.longitude
+            }
+            return JsonResponse(response_data)
+        else:
+            return JsonResponse({'error': 'No garbage location found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# views.py
+from django.http import JsonResponse
+import random
+
+
+def esp_data(request):
+    return render(request, 'view.html')
+
+
+def get_esp_data(request):
+    # Fake data
+    data = {
+        'temperature': f"{random.randint(20, 30)}°C",  # Random temperature
+        'altitude': f"{random.randint(1000, 2000)} m",  # Random altitude
+        'heading': random.choice(['North', 'Northeast', 'East', 'Southwest', 'West']),  # Random heading
+        'direction': random.choice(['North', 'South', 'East', 'West']),  # Random direction
+        'latitude': f"{random.uniform(30, 40):.4f}° N",  # Fake latitude
+        'longitude': f"{random.uniform(-130, -120):.4f}° W",  # Fake longitude
+        'distance': f"{random.randint(1, 100)} km",  # Random distance
+        'tds': f"{random.randint(200, 1000)} ppm",  # Random TDS in parts per million
+    }
+    return JsonResponse(data)

@@ -1,0 +1,115 @@
+<!-- templates/esp_data.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP Data</title>
+    <!-- Include Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Function to fetch the data from the API
+        function fetchData() {
+            $.getJSON('/api/esp_data/', function(data) {
+                $('#temperature').text(data.temperature);
+                $('#altitude').text(data.altitude);
+                $('#heading').text(data.heading);
+                $('#direction').text(data.direction);
+                $('#latitude').text(data.latitude);
+                $('#longitude').text(data.longitude);
+                $('#distance').text(data.distance);
+            });
+        }
+
+        // Fetch data every second
+        $(document).ready(function() {
+            fetchData();  // Initial fetch
+            setInterval(fetchData, 1000);  // Fetch every second
+        });
+    </script>
+</head>
+<body class="bg-gray-900 text-white font-sans antialiased">
+
+<!-- Full-screen container -->
+<div class="min-h-screen flex justify-center items-center p-4">
+
+    <!-- Main container for the data -->
+    <div class="bg-gray-800 p-4 rounded-lg shadow-md max-w-xs w-full space-y-4">
+
+        <!-- Title -->
+        <h1 class="text-2xl font-semibold text-center text-gray-200 mb-4">ESP8266 Sensor Data</h1>
+
+        <!-- Data cards container -->
+        <div class="space-y-3">
+
+            <!-- Temperature Card -->
+            <div class="flex justify-between items-center p-4 rounded-lg bg-gray-700 text-white shadow-md">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-thermometer-half text-gray-400"></i>
+                    <span class="text-gray-400 font-medium">Temperature:</span>
+                </div>
+                <span id="temperature" class="font-bold text-lg">Loading...</span>
+            </div>
+
+            <!-- Altitude Card -->
+            <div class="flex justify-between items-center p-4 rounded-lg bg-gray-700 text-white shadow-md">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-mountain text-gray-400"></i>
+                    <span class="text-gray-400 font-medium">Altitude:</span>
+                </div>
+                <span id="altitude" class="font-bold text-lg">Loading...</span>
+            </div>
+
+            <!-- Heading Card -->
+            <div class="flex justify-between items-center p-4 rounded-lg bg-gray-700 text-white shadow-md">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-compass text-gray-400"></i>
+                    <span class="text-gray-400 font-medium">Heading:</span>
+                </div>
+                <span id="heading" class="font-bold text-lg">Loading...</span>
+            </div>
+
+            <!-- Direction Card -->
+            <div class="flex justify-between items-center p-4 rounded-lg bg-gray-700 text-white shadow-md">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-arrow-right text-gray-400"></i>
+                    <span class="text-gray-400 font-medium">Direction:</span>
+                </div>
+                <span id="direction" class="font-bold text-lg">Loading...</span>
+            </div>
+
+            <!-- Latitude Card -->
+            <div class="flex justify-between items-center p-4 rounded-lg bg-gray-700 text-white shadow-md">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-map-marker-alt text-gray-400"></i>
+                    <span class="text-gray-400 font-medium">Latitude:</span>
+                </div>
+                <span id="latitude" class="font-bold text-lg">Loading...</span>
+            </div>
+
+            <!-- Longitude Card -->
+            <div class="flex justify-between items-center p-4 rounded-lg bg-gray-700 text-white shadow-md">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-map-marker-alt text-gray-400"></i>
+                    <span class="text-gray-400 font-medium">Longitude:</span>
+                </div>
+                <span id="longitude" class="font-bold text-lg">Loading...</span>
+            </div>
+
+            <!-- Distance Card -->
+            <div class="flex justify-between items-center p-4 rounded-lg bg-gray-700 text-white shadow-md">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-ruler-combined text-gray-400"></i>
+                    <span class="text-gray-400 font-medium">Distance:</span>
+                </div>
+                <span id="distance" class="font-bold text-lg">Loading...</span>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -29,3 +29,12 @@ class Region(models.Model):
 
     def __str__(self):
         return self.name or f"Region {self.id}"
+
+
+class Garbage(models.Model):
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    description = models.TextField(blank=True, null=True)  # Optional description
+
+    def __str__(self):
+        return f"Garbage at ({self.latitude}, {self.longitude})"
