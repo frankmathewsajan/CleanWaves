@@ -21,3 +21,11 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+class Region(models.Model):
+    name = models.CharField(max_length=255)  # Optional name/identifier for the region
+    points = models.JSONField()  # Store the list of points as JSON
+
+    def __str__(self):
+        return self.name or f"Region {self.id}"

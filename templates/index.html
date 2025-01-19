@@ -2,18 +2,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mobile-First Website with Rive</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet">
-
+    <link href="{% static 'css/output.css' %}" rel="stylesheet" />
     <script src="https://kit.fontawesome.com/35c881c056.js" crossorigin="anonymous"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        /* Ensure the canvas always fills the viewport */
+        #riveCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Scale proportionally, cropping if necessary */
+        }
+
+        body {
+            margin: 0; /* Remove default body margins */
+            overflow: hidden; /* Prevent scrolling */
+            height: 100vh; /* Ensure the body takes full viewport height */
+        }
+    </style>
 </head>
-<body class="relative h-screen w-screen text-white">
+<body class="relative text-white">
 
 <!-- Rive Animation -->
-<canvas id="riveCanvas" class="absolute inset-0 h-full w-full"></canvas>
+<canvas id="riveCanvas"></canvas>
 
 <!-- Buttons Above Footer Navigation -->
 <div class="fixed bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-4 z-50">
@@ -39,7 +55,6 @@
 
 <!-- Pill-Like Left-Side Navigation Bar -->
 <nav class="fixed top-20 left-4 transform -translate-y-1/2 bg-white shadow-lg rounded-full flex flex-col items-center py-4 space-y-6 w-16">
-
     <a href="/profile" class="{% if request.path == '/profile' %}text-blue-400{% else %}text-gray-600{% endif %} flex flex-col items-center hover:text-blue-500">
         <i class="fa fa-gear text-2xl"></i>
         <span class="text-xs">Settings</span>
@@ -49,6 +64,7 @@
 <!-- Rive Script -->
 <script src="https://unpkg.com/@rive-app/canvas"></script>
 <script>
+    // Initialize the Rive animation
     const riveCanvas = new rive.Rive({
         src: "{% static 'animations/indexpage.riv' %}", // Update with your file path
         canvas: document.getElementById("riveCanvas"),
@@ -58,6 +74,23 @@
             riveCanvas.resizeDrawingSurfaceToCanvas();
         },
     });
+
+    // Resize canvas dynamically to maintain proportional scaling
+    function resizeCanvas() {
+        const canvas = document.getElementById("riveCanvas");
+        const aspectRatio = canvas.width / canvas.height;
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        riveCanvas.resizeDrawingSurfaceToCanvas();
+    }
+
+    // Handle screen resizing
+    window.addEventListener("resize", resizeCanvas);
+
+    // Initial resize on page load
+    resizeCanvas();
 </script>
 </body>
 </html>

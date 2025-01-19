@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Region Mapper with Convex Hull</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQdGXdbWDMR8brxwVdIvNzpzub6IGSQyI&libraries=geometry&callback=initMap"
+            async defer></script>
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .pill-menu {
+            position: fixed;
+            bottom: 20%; /* Adjust this value to tweak the vertical position */
+            left: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .pill-menu button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 25px;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .pill-menu button i {
+            font-size: 18px;
+            color: black;
+        }
+
+        .pill-menu button span {
+            font-size: 10px;
+            color: black;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="pill-menu">
+    <!-- Clear Markers Button -->
+    <button id="clearMarkersBtn" onclick="clearMarkers()">
+        <i class="fas fa-trash"></i>
+        <span>Clear</span>
+    </button>
+    <!-- Shade Region Button -->
+    <button id="shadeRegionBtn" onclick="location.href=`{% url 'index' %}`">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </button>
+    <!-- Save Region Button -->
+    <button id="saveRegionBtn" onclick="saveRegion()">
+        <i class="fas fa-map"></i>
+        <span>Track</span>
+    </button>
+    <!-- Collect Trash Button -->
+    <button id="saveRegionBtn" onclick="saveRegion()">
+        <i class="fas fa-trash"></i>
+        <span>Collect</span>
+    </button>
+</div>
+
+<script>
+    let map;
+    let markers = [];
+    let polygon = null;
+    let edgeLabels = []; // Store edge labels
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: {lat: 16.4913, lng: 80.4963}, // Default location: VITAP
+            zoom: 13,
+            mapTypeId: "satellite",
+        });
+
+        map.addListener("click", (event) => {
+            addMarker(event.latLng);
+            redrawPolygon();
+        });
+    }
+
+    function addMarker(location) {
+        const marker = new google.maps.Marker({
+            position: location,
+            map: map,
+        });
+        marker.addListener("click", () => {
+            removeMarker(marker);
+            redrawPolygon();
+        });
+        markers.push(marker);
+    }
+
+    function removeMarker(marker) {
+        const index = markers.indexOf(marker);
+        if (index > -1) {
+            markers.splice(index, 1);
+            marker.setMap(null);
+        }
+    }
+
+    function redrawPolygon() {
+        if (polygon) {
+            polygon.setMap(null);
+        }
+        clearEdgeLabels();
+
+        if (markers.length < 3) return;
+
+        const positions = markers.map(marker => marker.getPosition());
+        const hull = getConvexHull(positions);
+
+        polygon = new google.maps.Polygon({
+            paths: hull,
+            strokeColor: "#FF0000",
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: "#FF0000",
+            fillOpacity: 0.35,
+        });
+        polygon.setMap(map);
+
+        // Add edge labels
+        for (let i = 0; i < hull.length; i++) {
+            const start = hull[i];
+            const end = hull[(i + 1) % hull.length];
+            const distance = google.maps.geometry.spherical.computeDistanceBetween(start, end);
+
+            const midpoint = {
+                lat: (start.lat() + end.lat()) / 2,
+                lng: (start.lng() + end.lng()) / 2,
+            };
+
+            // Use standard marker for the label
+            const labelMarker = new google.maps.Marker({
+                position: midpoint,
+                map: map,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 0, // Invisible marker
+                },
+                label: {
+                    text: `${(distance / 1000).toFixed(2)} km`,
+                    color: "black",
+                    fontSize: "10px",
+                    fontWeight: "bold",
+                    background: "white",
+                },
+            });
+
+            edgeLabels.push(labelMarker);
+        }
+    }
+
+    function clearEdgeLabels() {
+        edgeLabels.forEach(label => label.setMap(null));
+        edgeLabels = [];
+    }
+
+    function clearMarkers() {
+        markers.forEach(marker => marker.setMap(null));
+        markers = [];
+        if (polygon) polygon.setMap(null);
+        clearEdgeLabels();
+    }
+
+    function getConvexHull(points) {
+        points.sort((a, b) => a.lng() - b.lng() || a.lat() - b.lat());
+        const cross = (o, a, b) => (a.lng() - o.lng()) * (b.lat() - o.lat()) - (a.lat() - o.lat()) * (b.lng() - o.lng());
+        const lower = [];
+        for (const point of points) {
+            while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) {
+                lower.pop();
+            }
+            lower.push(point);
+        }
+        const upper = [];
+        for (const point of points.slice().reverse()) {
+            while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0) {
+                upper.pop();
+            }
+            upper.push(point);
+        }
+        lower.pop();
+        upper.pop();
+        return lower.concat(upper);
+    }
+
+    function saveRegion() {
+    if (!polygon) {
+        alert('No region to save.');
+        return;
+    }
+
+    // Prompt for the region name
+    const regionName = prompt('Enter the name of the region:');
+    if (!regionName) {
+        alert('Region name is required.');
+        return;
+    }
+
+    // Extract polygon coordinates
+    const coordinates = polygon.getPath().getArray().map(latLng => ({
+        lat: latLng.lat(),
+        lng: latLng.lng(),
+    }));
+
+    // Create payload
+    const payload = JSON.stringify({
+        name: regionName,
+        points: coordinates,
+    });
+
+    console.log(payload); // For debugging
+
+    const csrftoken = `{{ csrf_token }}`;
+
+    // Send data via Axios
+    axios.post('/save', payload, {
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        }
+    })
+        .then(response => {
+            console.log(response); // For debugging
+            if (response.status === 200) {
+                alert('Region saved successfully.');
+                location.href = `{% url 'track' %}`
+            }
+        })
+        .catch(error => {
+            console.error('Error saving region:', error);
+        });
+}
+
+
+
+    window.initMap = initMap;
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
