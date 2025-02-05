@@ -26,6 +26,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# Disable SSL redirection and enforce HTTPS for local development
+SECURE_SSL_REDIRECT = False
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+SECURE_HSTS_SECONDS = 0  # Disable HSTS for local testing
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None  # Disable COOP enforcement for local testing
+
+
 # Application definition
 
 INSTALLED_APPS = [
