@@ -35,7 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "bot.apps.BotConfig"
+    "bot.apps.BotConfig",
+    "sensors.apps.SensorsConfig",
+    "rest_framework"
 
 ]
 
