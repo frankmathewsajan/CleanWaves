@@ -103,7 +103,8 @@
 <div id="monitor">
     <div class="label">GPS: <span id="gps"></span></div>
     <div class="label">Temperature: <span id="temp"></span></div>
-    <div class="label">TDS: <span id="tds"></span></div>
+    <div class="label">Altitude: <span id="altitude"></span></div>
+    <div class="label">Heading: <span id="heading"></span></div>
 </div>
 
 
@@ -118,27 +119,42 @@
 
 <script>
     function fetchData() {
-        $.getJSON('/api/esp_data/', function (data) {
-            // Update specific elements for temperature, altitude, etc.
-            $('#temperature').text(data.temperature);
-            $('#altitude').text(data.altitude);
+        $.getJSON('api/data/latest/', function (data) {
+            // Update specific elements with new JSON key mappings
+            console.log(data);
+            $('#temperature').text(data.temp);
+            $('#altitude').text(data.alt);
             $('#heading').text(data.heading);
-            $('#direction').text(data.direction);
-            $('#latitude').text(data.latitude);
-            $('#longitude').text(data.longitude);
-            $('#distance').text(data.distance);
+            $('#latitude').text(data.lat);
+            $('#longitude').text(data.lon);
 
-            // Update monitor-specific data
-            updateMonitor(data);  // Calling the function to update the monitor with GPS, temperature, and TDS
+            // Call updateMonitor with new data format
+            updateMonitor({
+                temperature: data.temp,
+                latitude: data.lat,
+                longitude: data.lon,
+                altitude: data.alt,
+                heading: data.heading,
+                timestamp: data.timestamp
+            });
         });
     }
+
 
     // Function to populate the monitor with data
     function updateMonitor(data) {
         document.getElementById('gps').textContent = data.latitude + ", " + data.longitude; // Assuming GPS is lat, lon
         document.getElementById('temp').textContent = data.temperature;
-        document.getElementById('tds').textContent = data.tds;
+        document.getElementById('altitude').textContent = data.altitude;
+        document.getElementById('heading').textContent = data.heading;
     }
+
+
+    // Fetch data every second
+    $(document).ready(function () {
+        fetchData();  // Initial fetch
+        setInterval(fetchData, 1000);  // Fetch every second
+    });
 
     // Fetch data every second
     $(document).ready(function () {
