@@ -1,60 +1,46 @@
-import serial
 import json
+import os
 import time
 
-# Configure the serial port (adjust 'COM7' or '/dev/ttyUSB0' to your Arduino port)
-SERIAL_PORT = "COM5"  # Replace with your port, e.g., "/dev/ttyUSB0" for Linux
-BAUD_RATE = 115200  # Match the baud rate used in the Arduino code
-OUTPUT_FILE = "data.json"
+import django
+import serial
+
+from bot.models import SensorData
+
+# Setup Django environment (Modify path accordingly)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "CleanWaves.settings")
+django.setup()
 
 
-def save_data_to_json(data):
-    """Appends data to a JSON file."""
+SERIAL_PORT = "COM5"
+BAUD_RATE = 115200
+
+
+def save_to_database(data):
+    """Save data to Django database."""
     try:
-        # Load existing data if the file exists
-        try:
-            with open(OUTPUT_FILE, "r") as file:
-                existing_data = json.load(file)
-        except FileNotFoundError:
-            existing_data = []
-
-        # Append the new data
-        existing_data.append(data)
-
-        # Save the updated data back to the file
-        with open(OUTPUT_FILE, "w") as file:
-            json.dump(existing_data, file, indent=4)
-
+        SensorData.objects.create(value=data)
+        print(f"Data saved: {data}")
     except Exception as e:
-        print(f"Error saving data: {e}")
+        print(f"Error saving to database: {e}")
 
 
 def main():
-    # Initialize serial connection
     try:
         ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
         print(f"Listening on {SERIAL_PORT}...")
 
         while True:
-            # Read a line from the serial port
             line = ser.readline().decode('utf-8').strip()
-
             if line:
                 try:
-                    # Parse the JSON data
                     data = json.loads(line)
-
-                    # Verify expected data structure
-                    expected_keys = ['temp', 'lat', 'lon', 'alt', 'heading']
-                    if all(key in data for key in expected_keys):
-                        print("Received:", data)
-                        # Save the data to the JSON file
-                        save_data_to_json(data)
-                    else:
-                        print("Received data missing required fields")
-
+                    print("Received:", data)
+                    save_to_database(data)
                 except json.JSONDecodeError:
-                    print(f"Invalid JSON: {line}")
+                    print(f"Invalid JSON received: {line}")
+
+            time.sleep(0.1)
 
     except serial.SerialException as e:
         print(f"Serial error: {e}")
@@ -63,6 +49,7 @@ def main():
     finally:
         if 'ser' in locals() and ser.is_open:
             ser.close()
+            print(f"Serial port {SERIAL_PORT} closed.")
 
 
 if __name__ == "__main__":

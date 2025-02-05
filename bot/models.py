@@ -38,3 +38,8 @@ class Garbage(models.Model):
 
     def __str__(self):
         return f"Garbage at ({self.latitude}, {self.longitude})"
+
+
+class SensorData(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)  # Ensure auto_now_add=True
+    value = models.JSONField()
