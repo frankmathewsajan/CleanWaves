@@ -123,6 +123,7 @@
         $.getJSON('api/data/latest/', function (data) {
             // Update specific elements with new JSON key mappings
             console.log(data);
+            
             $('#temperature').text(data.temp);
             $('#altitude').text(data.alt);
             $('#heading').text(data.heading);
