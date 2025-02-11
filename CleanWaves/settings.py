@@ -81,17 +81,22 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'CleanWaves.wsgi.application'
-
+import environ
+import os
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+env = environ.Env()
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': env('DB_HOST'),
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PORT': env('DB_PORT'),
+        'PASSWORD': env('DB_PASSWORD'),
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
